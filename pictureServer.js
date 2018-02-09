@@ -87,7 +87,11 @@ const parser = new Readline({
 serial.pipe(parser);
 parser.on('data', function(data) {
   console.log('Data:', data);
-  io.emit('server-msg', data);
+  var imageName = new Date().toString().replace(/[&\/\\#,+()$~%.'":*?<>{}\s-]/g, '');
+  NodeWebcam.capture('public/'+imageName, opts, function( err, data ) {
+    io.emit('newPicture',(imageName+'.jpg')); ///Lastly, the new name is send to the client web browser.
+  });
+//  io.emit('server-msg', data);
 });
 //----------------------------------------------------------------------------//
 
