@@ -89,7 +89,6 @@ const parser = new Readline({
 });
 
 // Read data that is available on the serial port and send it to the websocket
-console.log("parser")
 serial.pipe(parser);
 parser.on('data', function(data) {
   if(data === 'light') {
