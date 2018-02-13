@@ -49,7 +49,7 @@ socket.on('server-msg', function(msg) {
       console.log("black");
       break;
     default:
-      //console.log("something else");
+      document.getElementById('imageToText').innerText = "Cool! I read: " + msg + " from the image!";
       break;
   }
 });

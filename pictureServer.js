@@ -26,8 +26,13 @@ var io = require('socket.io')(http); // connect websocket library to server
 var serverPort = 8000;
 var SerialPort = require('serialport'); // serial library
 var Readline = SerialPort.parsers.Readline; // read serial data as lines
+
 //-- Addition:
 var NodeWebcam = require( "node-webcam" );// load the webcam module
+
+//-- Personal Modification:
+var tesseract = require('node-tesseract');
+
 
 //---------------------- WEBAPP SERVER SETUP ---------------------------------//
 // use express to create the simple webapp
@@ -84,14 +89,24 @@ const parser = new Readline({
 });
 
 // Read data that is available on the serial port and send it to the websocket
+console.log("parser")
 serial.pipe(parser);
 parser.on('data', function(data) {
-  console.log('Data:', data);
-  var imageName = new Date().toString().replace(/[&\/\\#,+()$~%.'":*?<>{}\s-]/g, '');
-  NodeWebcam.capture('public/'+imageName, opts, function( err, data ) {
-    io.emit('newPicture',(imageName+'.jpg')); ///Lastly, the new name is send to the client web browser.
-  });
-//  io.emit('server-msg', data);
+  if(data === 'light') {
+    // Recognize text of any language in any format
+    var imageName = new Date().toString().replace(/[&\/\\#,+()$~%.'":*?<>{}\s-]/g, '');
+    NodeWebcam.capture('public/'+imageName, opts, function( err, data ) {
+      tesseract.process('public/'+imageName+'.jpg', function(err, text) {
+        if(err) {
+          console.error(err);
+        } else {
+          console.log(text);
+          io.emit('server-msg', text);
+        }
+      });
+      io.emit('newPicture',(imageName+'.jpg')); ///Lastly, the new name is send to the client web browser.
+    });
+  }
 });
 //----------------------------------------------------------------------------//
 
